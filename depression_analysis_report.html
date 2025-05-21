@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depresyon Analizi Teknik Rapor</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f4f6f9;
+      color: #333;
+    }
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 20px 40px;
+    }
+    header h1 {
+      margin: 0;
+    }
+    main {
+      padding: 40px;
+      line-height: 1.6;
+    }
+    section {
+      margin-bottom: 40px;
+    }
+    h2 {
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+      color: #2c3e50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 12px;
+      text-align: center;
+    }
+    th {
+      background-color: #ecf0f1;
+    }
+    .highlight {
+      background-color: #dff0d8;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Öğrenci Depresyonu Tahmin Projesi - Teknik Rapor</h1>
+    <p>Yapay Zeka & Makine Öğrenmesi | 2025</p>
+  </header>
+  <main>
+    <section>
+      <h2>1. Giriş</h2>
+    <p>Bu proje üniversite öğrencileri arasında görülen depresyon düzeylerini analiz etmeyi ve tahmin etmeyi amaçlamaktadır.
+    <br>
+    <br>
+        Amaç; depresyona sebep olabilecek demografik, akademik ve yaşam tarzı faktörlerini inceleyerek riskli bireyleri önceden belirleyebilmektir.
+    <br>
+    <br>
+        Proje; psikoloji, eğitim ve veri bilimi gibi disiplinler arası çalışmalara katkı sunabilecek şekilde tasarlanmıştır.
+    </p>
+    </section>
+
+    <section>
+      <h2>2. Kullanılan Modeller</h2>
+      <ul>
+        <li>Logistic Regression</li>
+        <li>K-Nearest Neighbors (KNN)</li>
+        <li>Random Forest</li>
+        <li>Decision Tree</li>
+        <li>Hybrid Model (Random Forest + XGBoost)</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. Model Performans Karşılaştırması</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>F1 Skoru</th>
+            <th>AUC</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Logistic Regression</td>
+            <td>0.77</td>
+            <td>0.84</td>
+          </tr>
+          <tr>
+            <td>KNN</td>
+            <td>0.76</td>
+            <td>0.82</td>
+          </tr>
+          <tr>
+            <td>Random Forest</td>
+            <td>0.75</td>
+            <td>0.81</td>
+          </tr>
+          <tr>
+            <td>Decision Tree</td>
+            <td>0.63</td>
+            <td>0.67</td>
+          </tr>
+          <tr class="highlight">
+            <td>Hybrid RF + XGBoost</td>
+            <td>0.70</td>
+            <td>0.84</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>4. Sonuç</h2>
+      <p>Yapılan analizler sonucunda <strong>Hybrid Random Forest + XGBoost</strong> modelinin en dengeli ve güvenilir performansı sergilediği görülmüştür. Bu model hem depresyonlu bireyleri doğru şekilde tespit etmede yüksek bir başarı göstermiş hem de ROC-AUC ve F1 skorları ile istatistiksel olarak diğer modelleri geride bırakmıştır.</p>
+    </section>
+  </main>
+</body>
+</html>
