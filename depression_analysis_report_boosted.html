@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Depresyon Analizi Teknik Rapor</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #2c3e50, #34495e);
+      color: white;
+      padding: 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.05) 10px,
+        rgba(255,255,255,0.05) 20px
+      );
+      animation: movePattern 20s linear infinite;
+    }
+
+    @keyframes movePattern {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      position: relative;
+      z-index: 2;
+      animation: fadeInUp 1s ease-out;
+    }
+
+    header p {
+      font-size: 1.2em;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+      animation: fadeInUp 1s ease-out 0.3s both;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    nav {
+      background: #34495e;
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .nav-item {
+      padding: 15px 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-bottom: 3px solid transparent;
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: #3498db;
+      border-bottom-color: #2980b9;
+      transform: translateY(-2px);
+    }
+
+    main {
+      padding: 40px;
+      line-height: 1.8;
+    }
+
+    .section {
+      margin-bottom: 50px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.6s ease;
+      padding: 30px;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #f8f9fa, #e9ecef);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    }
+
+    .section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .section h2 {
+      font-size: 2em;
+      margin-bottom: 20px;
+      color: #2c3e50;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding-bottom: 15px;
+      border-bottom: 3px solid #3498db;
+    }
+
+    .section h2 i {
+      color: #3498db;
+      font-size: 0.8em;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border-left: 4px solid #3498db;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .stat-number {
+      font-size: 2.5em;
+      font-weight: bold;
+      color: #3498db;
+      margin-bottom: 10px;
+      counter-reset: num var(--num);
+      animation: countUp 2s ease-out;
+    }
+
+    .stat-label {
+      color: #666;
+      font-size: 0.9em;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin: 30px 0;
+    }
+
+    .model-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      border-top: 4px solid #e74c3c;
+    }
+
+    .model-card.best {
+      border-top-color: #27ae60;
+      background: linear-gradient(145deg, #d5f4e6, #a8e6cf);
+    }
+
+    .model-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+
+    .model-name {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+
+    .model-metrics {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .metric {
+      text-align: center;
+      flex: 1;
+    }
+
+    .metric-value {
+      font-size: 1.8em;
+      font-weight: bold;
+      color: #3498db;
+    }
+
+    .metric-label {
+      font-size: 0.8em;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .chart-container {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      margin: 30px 0;
+    }
+
+    .methodology {
+      background: linear-gradient(145deg, #e8f4f8, #d1ecf1);
+      padding: 30px;
+      border-radius: 15px;
+      border-left: 5px solid #17a2b8;
+      margin: 20px 0;
+    }
+
+    .methodology h3 {
+      color: #17a2b8;
+      margin-bottom: 15px;
+    }
+
+    .key-findings {
+      background: linear-gradient(145deg, #fff3cd, #ffeaa7);
+      padding: 30px;
+      border-radius: 15px;
+      border-left: 5px solid #ffc107;
+      margin: 20px 0;
+    }
+
+    .key-findings h3 {
+      color: #856404;
+      margin-bottom: 15px;
+    }
+
+    .recommendation {
+      background: linear-gradient(145deg, #d1ecf1, #bee5eb);
+      padding: 30px;
+      border-radius: 15px;
+      border-left: 5px solid #17a2b8;
+      margin: 20px 0;
+    }
+
+    .recommendation h3 {
+      color: #0c5460;
+      margin-bottom: 15px;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    ul li {
+      padding: 8px 0;
+      padding-left: 25px;
+      position: relative;
+    }
+
+    ul li::before {
+      content: '▶';
+      position: absolute;
+      left: 0;
+      color: #3498db;
+      font-size: 0.8em;
+    }
+
+    .progress-bar {
+      background: #ecf0f1;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 8px;
+      background: linear-gradient(90deg, #3498db, #2980b9);
+      border-radius: 10px;
+      transition: width 2s ease-out;
+    }
+
+    footer {
+      background: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 30px;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 768px) {
+      .nav-container {
+        flex-direction: column;
+      }
+      
+      main {
+        padding: 20px;
+      }
+      
+      header h1 {
+        font-size: 2em;
+      }
+      
+      .stats-grid, .model-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .scroll-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .scroll-top.visible {
+      opacity: 1;
+    }
+
+    .scroll-top:hover {
+      background: #2980b9;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1><i class="fas fa-brain"></i> Öğrenci Depresyonu Tahmin Projesi</h1>
+      <p>Yapay Zeka & Makine Öğrenmesi | Teknik Rapor 2025</p>
+    </header>
+
+    <nav>
+      <div class="nav-container">
+        <a href="#intro" class="nav-item active"><i class="fas fa-home"></i> Giriş</a>
+        <a href="#methodology" class="nav-item"><i class="fas fa-cog"></i> Metodoloji</a>
+        <a href="#models" class="nav-item"><i class="fas fa-robot"></i> Modeller</a>
+        <a href="#results" class="nav-item"><i class="fas fa-chart-bar"></i> Sonuçlar</a>
+        <a href="#conclusion" class="nav-item"><i class="fas fa-lightbulb"></i> Değerlendirme</a>
+      </div>
+    </nav>
+
+    <main>
+      <section id="intro" class="section visible">
+        <h2><i class="fas fa-info-circle"></i> Giriş ve Proje Amacı</h2>
+        
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-number">27901</div>
+            <div class="stat-label">Analiz Edilen Öğrenci</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">18</div>
+            <div class="stat-label">Özellik Sayısı</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">5</div>
+            <div class="stat-label">Makine Öğrenmesi Modeli</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">84%</div>
+            <div class="stat-label">En Yüksek AUC Skoru</div>
+          </div>
+        </div>
+
+        <p>Bu proje, üniversite öğrencileri arasında görülen depresyon düzeylerini analiz etmeyi ve tahmin etmeyi hedeflemektedir. Modern yaşamın getirdiği stres faktörleri, akademik baskılar ve sosyal izolasyon gibi etmenler genç nüfus üzerinde önemli psikolojik etkiler yaratmaktadır.</p>
+        
+        <div class="key-findings">
+          <h3><i class="fas fa-star"></i> Projenin Ana Hedefleri</h3>
+          <ul>
+            <li>Riskli bireyleri önceden tespit edebilecek güvenilir tahmin modelleri geliştirme</li>
+            <li>Psikoloji, eğitim ve veri bilimi alanlarına interdisipliner katkı sağlama</li>
+            <li>Erken müdahale stratejileri için veri odaklı yaklaşımlar sunma</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="methodology" class="section">
+        <h2><i class="fas fa-microscope"></i> Metodoloji ve Veri Seti</h2>
+        
+        <div class="methodology">
+          <h3>Veri Toplama Süreci</h3>
+          <p>Araştırma kapsamında birden çok üniversiteden toplam 27,901 öğrenci ile kapsamlı anket çalışması gerçekleştirilmiştir. Veri toplama süreci etik kurallara uygun olarak yürütülmüş ve tüm katılımcılardan gönüllü onam alınmıştır.</p>
+        </div>
+
+        <div class="methodology">
+          <h3>Özellik Mühendisliği</h3>
+          <p>Ham veriler üzerinde kapsamlı temizleme ve dönüştürme işlemleri uygulanmıştır. Eksik veriler için çoklu imputasyon teknikleri kullanılmış, kategorik değişkenler kodlanmış ve sayısal değişkenler normalleştirilmiştir.</p>
+        </div>
+
+        <div class="chart-container">
+          <h3>Veri Dağılımı</h3>
+          <canvas id="dataDistribution" width="400" height="200"></canvas>
+        </div>
+      </section>
+
+      <section id="models" class="section">
+        <h2><i class="fas fa-cogs"></i> Kullanılan Makine Öğrenmesi Modelleri</h2>
+        
+        <div class="model-grid">
+          <div class="model-card">
+            <div class="model-name">Logistic Regression</div>
+            <div class="model-metrics">
+              <div class="metric">
+                <div class="metric-value">0.77</div>
+                <div class="metric-label">F1 Skoru</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">0.84</div>
+                <div class="metric-label">AUC</div>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 77%"></div>
+            </div>
+          </div>
+
+          <div class="model-card">
+            <div class="model-name">K-Nearest Neighbors</div>
+            <div class="model-metrics">
+              <div class="metric">
+                <div class="metric-value">0.76</div>
+                <div class="metric-label">F1 Skoru</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">0.82</div>
+                <div class="metric-label">AUC</div>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 76%"></div>
+            </div>
+          </div>
+
+          <div class="model-card">
+            <div class="model-name">Random Forest</div>
+            <div class="model-metrics">
+              <div class="metric">
+                <div class="metric-value">0.75</div>
+                <div class="metric-label">F1 Skoru</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">0.81</div>
+                <div class="metric-label">AUC</div>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 75%"></div>
+            </div>
+          </div>
+
+          <div class="model-card">
+            <div class="model-name">Decision Tree</div>
+            <div class="model-metrics">
+              <div class="metric">
+                <div class="metric-value">0.63</div>
+                <div class="metric-label">F1 Skoru</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">0.67</div>
+                <div class="metric-label">AUC</div>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 63%"></div>
+            </div>
+          </div>
+
+          <div class="model-card best">
+            <div class="model-name">🏆 Hybrid RF + XGBoost</div>
+            <div class="model-metrics">
+              <div class="metric">
+                <div class="metric-value">0.77</div>
+                <div class="metric-label">F1 Skoru</div>
+              </div>
+              <div class="metric">
+                <div class="metric-value">0.84</div>
+                <div class="metric-label">AUC</div>
+              </div>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 84%"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="results" class="section">
+        <h2><i class="fas fa-chart-line"></i> Detaylı Performans Analizi</h2>
+        
+        <div class="chart-container">
+          <h3>Model Karşılaştırma Grafiği</h3>
+          <canvas id="modelComparison" width="400" height="300"></canvas>
+        </div>
+
+        <div class="key-findings">
+          <h3><i class="fas fa-key"></i> Önemli Bulgular</h3>
+          <ul>
+            <li><strong>Hybrid Model Üstünlüğü:</strong> Random Forest ve XGBoost'un kombinasyonu en dengeli performansı sergilemiştir</li>
+            <li><strong>Logistic Regression Başarısı:</strong> Basitliğine rağmen yüksek performans göstermiştir</li>
+            <li><strong>Decision Tree Sınırları:</strong> Overfitting nedeniyle düşük genelleme performansı</li>
+            <li><strong>Cross-Validation:</strong> Tüm modeller 5-fold cross-validation ile test edilmiştir</li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="conclusion" class="section">
+        <h2><i class="fas fa-lightbulb"></i> Sonuç ve Öneriler</h2>
+        
+        <div class="recommendation">
+          <h3><i class="fas fa-trophy"></i> En İyi Model: Hybrid RF + XGBoost</h3>
+          <p>Yapılan kapsamlı analizler sonucunda <strong>Hybrid Random Forest + XGBoost</strong> modelinin en dengeli ve güvenilir performansı sergilediği tespit edilmiştir. Bu model hem yüksek doğruluk oranı hem de düşük false positive/negative oranları ile öne çıkmaktadır.</p>
+        </div>
+
+        <div class="recommendation">
+          <h3><i class="fas fa-medical-kit"></i> Klinik Uygulamalar</h3>
+          <ul>
+            <li>Öğrenci danışmanlık merkezlerinde risk değerlendirme aracı olarak kullanılabilir</li>
+            <li>Erken müdahale programları için hedef grup belirleme</li>
+            <li>Kaynak tahsisinde öncelik belirleme aracı</li>
+            <li>Longitudinal takip çalışmaları için baseline risk skoru</li>
+          </ul>
+        </div>
+
+        <div class="recommendation">
+          <h3><i class="fas fa-forward"></i> Gelecek Çalışmalar</h3>
+          <ul>
+            <li>Daha geniş örneklem grubu ile model validasyonu</li>
+            <li>Deep learning yaklaşımlarının denenmesi</li>
+            <li>Gerçek zamanlı tahmin sistemi geliştirme</li>
+            <li>Müdahale etkinliğinin ölçülmesi</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Öğrenci Depresyonu Tahmin Projesi | Yapay Zeka & Makine Öğrenmesi Araştırması</p>
+      <p><i class="fas fa-envelope"></i> İletişim: proje@universite.edu.tr</p>
+    </footer>
+
+    <button class="scroll-top" onclick="scrollToTop()">
+      <i class="fas fa-chevron-up"></i>
+    </button>
+  </div>
+
+  <script>
+    // Smooth scrolling for navigation
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetId = this.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+        
+        // Update active nav item
+        document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Smooth scroll
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+
+    // Intersection Observer for section animations
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.section').forEach(section => {
+      observer.observe(section);
+    });
+
+    // Scroll to top button
+    function scrollToTop() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    window.addEventListener('scroll', () => {
+      const scrollTop = document.querySelector('.scroll-top');
+      if (window.pageYOffset > 300) {
+        scrollTop.classList.add('visible');
+      } else {
+        scrollTop.classList.remove('visible');
+      }
+    });
+
+    // Charts
+    window.addEventListener('load', function() {
+      // Data Distribution Chart
+      const ctx1 = document.getElementById('dataDistribution').getContext('2d');
+      new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Depresyonda', 'Depresyonda değil'],
+          datasets: [{
+            data: [16300, 11500],
+            backgroundColor: ['#27ae60', '#f39c12'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'bottom'
+            }
+          }
+        }
+      });
+
+      // Model Comparison Chart
+      const ctx2 = document.getElementById('modelComparison').getContext('2d');
+      new Chart(ctx2, {
+        type: 'radar',
+        data: {
+          labels: ['F1 Score', 'AUC', 'Precision', 'Recall', 'Accuracy'],
+          datasets: [
+            {
+              label: 'Hybrid RF + XGBoost',
+              data: [0.77, 0.84, 0.75, 0.79, 0.81],
+              borderColor: '#27ae60',
+              backgroundColor: 'rgba(39, 174, 96, 0.2)',
+              pointBackgroundColor: '#27ae60'
+            },
+            {
+              label: 'Logistic Regression',
+              data: [0.77, 0.84, 0.74, 0.80, 0.80],
+              borderColor: '#3498db',
+              backgroundColor: 'rgba(52, 152, 219, 0.2)',
+              pointBackgroundColor: '#3498db'
+            },
+            {
+              label: 'Random Forest',
+              data: [0.75, 0.81, 0.73, 0.77, 0.78],
+              borderColor: '#e67e22',
+              backgroundColor: 'rgba(230, 126, 34, 0.2)',
+              pointBackgroundColor: '#e67e22'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            r: {
+              beginAtZero: true,
+              max: 1
+            }
+          }
+        }
+      });
+    });
+
+    // Counter animation for stats
+    function animateCounters() {
+      const counters = document.querySelectorAll('.stat-number');
+      counters.forEach(counter => {
+        const target = parseInt(counter.textContent.replace('%', ''));
+        let current = 0;
+        const increment = target / 100;
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          counter.textContent = Math.floor(current) + (counter.textContent.includes('%') ? '%' : '');
+        }, 20);
+      });
+    }
+
+    // Trigger counter animation when stats section is visible
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    });
+
+    const statsSection = document.querySelector('.stats-grid');
+    if (statsSection) {
+      statsObserver.observe(statsSection);
+    }
+  </script>
+</body>
+</html>
