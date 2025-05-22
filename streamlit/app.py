@@ -72,13 +72,20 @@ if submitted:
         "Dietary Habits_Others": 0,
     }
 
-    input_dict[f"Dietary Habits_{dietary}"] = 1  # Doğru sütunu aktif et
+    input_dict[f"Dietary Habits_{dietary}"] = 1
 
     # Kullanıcı verisini hizala
     user_df = pd.get_dummies(pd.DataFrame([input_dict]))
-    aligned_df = pd.DataFrame(columns=feature_names)
-    aligned_df = pd.concat([aligned_df, user_df], ignore_index=True)
-    aligned_df = aligned_df[feature_names].fillna(0)
+
+    # Modelin beklediği sütunlara sahip boş bir DataFrame oluştur
+    aligned_df = pd.DataFrame(0, columns=feature_names, index=[0])
+
+    # Kullanıcının gönderdiği sütunlar ile eşleşenleri kopyala
+    for col in user_df.columns:
+        if col in aligned_df.columns:
+            aligned_df[col] = user_df[col].values
+
+
 
     # 🔮 Tahmin ve olasılık
     prediction = model.predict(aligned_df)[0]
@@ -109,3 +116,6 @@ if st.checkbox("🛠️ Geliştirici Modu: Girdi ve Veri Kontrolü"):
     st.json(input_dict)
     st.subheader("📊 Hizalanmış Giriş Verisi (DataFrame)")
     st.dataframe(aligned_df)
+    st.subheader("📊 Veri Sütunları")
+    st.write("📄 Model Feature Names:", feature_names)
+    st.write("📄 User DF Columns:", user_df.columns.tolist())
